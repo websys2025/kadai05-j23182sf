@@ -14,6 +14,24 @@
     <script>
         async function some_api(myForm) {
             // ここにコードを書く
+                const userMessage = myForm.form_data.value;
+                const url = "https://api.thecatapi.com/v1/images/search";
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const imageUrl = data[0].url;
+
+                    document.getElementById("result").innerHTML = `
+                        <p>あなたのメッセージ：「${userMessage}」</p>
+                        <img src="${imageUrl}" alt="猫画像" width="300" />
+                    `;
+                } catch (error) {
+                    document.getElementById("result").innerHTML = "APIエラー：" + error;
+                }
+
+                document.apiform.reset();
+
             document.getElementById("result").innerHTML += myForm.form_data.value+"<br />";
             document.apiform.reset();
         }
