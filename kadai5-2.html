@@ -14,27 +14,29 @@
     <script>
         async function some_api(myForm) {
             // ここにコードを書く
-                const userMessage = myForm.form_data.value;
-                const url = "https://api.thecatapi.com/v1/images/search";
+            const name = myForm.form_data.value.toLowerCase();
+            const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
 
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const imageUrl = data[0].url;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("ポケモンが見つかりませんでした");
 
-                    document.getElementById("result").innerHTML = `
-                        <p>あなたのメッセージ：「${userMessage}」</p>
-                        <img src="${imageUrl}" alt="猫画像" width="300" />
-                    `;
-                } catch (error) {
-                    document.getElementById("result").innerHTML = "APIエラー：" + error;
-                }
+                const data = await response.json();
+                const image = data.sprites.front_default;
+                const types = data.types.map(t => t.type.name).join(", ");
 
-                document.apiform.reset();
+                document.getElementById("result").innerHTML = `
+                    <h2>${data.name.toUpperCase()}</h2>
+                    <img src="${image}" alt="${data.name}" />
+                    <p>タイプ: ${types}</p>
+                `;
+            } catch (error) {
+                document.getElementById("result").innerHTML = `エラー: ${error.message}`;
+            }
 
-            document.getElementById("result").innerHTML += myForm.form_data.value+"<br />";
             document.apiform.reset();
         }
     </script>
 </body>
 </html>
+
