@@ -11,13 +11,34 @@
     </p></form>
     
     <div id="result">結果はここに表示</div>
-    <script>
-        async function zip_api(myForm) {
-            const endpoint = "https://zipcloud.ibsnet.co.jp/api/search";
-            // ここにコードを書く
-            // zipcloudのAPI呼び出して結果を表示する
-            document.getElementById("result").innerHTML =  myForm.zipcode.value; // 現状ではそのまま表示しているだけ
+<script>
+    async function zip_api(myForm) {
+        const endpoint = "https://zipcloud.ibsnet.co.jp/api/search";
+        const rawZip = myForm.zipcode.value;
+        const zipcode = rawZip.replace(/[^\d]/g, ""); // 数字以外を除去（ハイフン対応）
+
+        if (zipcode.length !== 7) {
+            document.getElementById("result").innerHTML = "7桁の郵便番号を入力してください。";
+            return;
         }
-    </script>
+
+        const url = `${endpoint}?zipcode=${encodeURIComponent(zipcode)}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.results) {
+                const address = data.results[0];
+                const fullAddress = `${address.address1} ${address.address2} ${address.address3}`;
+                document.getElementById("result").innerHTML = `住所：${fullAddress}`;
+            } else {
+                document.getElementById("result").innerHTML = `エラー：${data.message}`;
+            }
+        } catch (error) {
+            document.getElementById("result").innerHTML = `通信エラー：${error}`;
+        }
+    }
+</script>
 </body>
 </html>
